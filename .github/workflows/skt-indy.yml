@@ -35,9 +35,22 @@ jobs:
         path: vcx/libvcx/target
         key: ${{ runner.os }}-cargo-build-target-libvcx-${{ hashFiles('**/Cargo.lock') }}    
     
+    - name: Cache Java build
+      uses: actions/cache@v1
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
     - name: Setup Build Env
       run: sudo apt-get install -y build-essential pkg-config cmake libssl-dev libsqlite3-dev libzmq3-dev libncursesw5-dev libsodium-dev
     
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+
     - name: Build libindy
       run: |
         cargo build
@@ -50,6 +63,10 @@ jobs:
         sudo cp target/debug/libvcx.so /usr/local/lib
       working-directory: ./vcx/libvcx
     
+    - name: Build libvcx Java wrapper with Gradle
+      run: ./gradlew clean build
+      working-directory: ./vcx/wrapper/java
+      
     - name: Compress and Upload libindy
       env: 
         NEXUS_ID: ${{secrets.NexusId}}
