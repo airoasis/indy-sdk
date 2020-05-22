@@ -13,14 +13,34 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    
+    - name: Cache cargo registry
+      uses: actions/cache@v1
+      with:
+        path: ~/.cargo/registry
+        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+    - name: Cache cargo index
+      uses: actions/cache@v1
+      with:
+        path: ~/.cargo/git
+        key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+    - name: Cache cargo build
+      uses: actions/cache@v1
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+    
     - name: Setup Build Env
       run: sudo apt-get install -y build-essential pkg-config cmake libssl-dev libsqlite3-dev libzmq3-dev libncursesw5-dev libsodium-dev
+    
     - name: Build
       run: cargo build --verbose
       working-directory: ./libindy
+    
     - name: Compress 
       run: zip libindy.zip libindy.so
       working-directory: ./libindy/target/debug
+    
     - name: Upload
       env: 
         NEXUS_ID: ${{secrets.NexusId}}
