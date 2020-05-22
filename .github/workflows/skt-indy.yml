@@ -1,0 +1,19 @@
+name: Rust
+
+on:
+  push:
+    branches: [ feature/github-actions-ci-cd ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        path: 'libindy'
+    - name: Setup Build Env
+      run: apt-get install -y build-essential pkg-config cmake libssl-dev libsqlite3-dev libzmq3-dev libncursesw5-dev libsodium-dev
+    - name: Build
+      run: cargo build --verbose
