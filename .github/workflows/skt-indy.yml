@@ -65,7 +65,7 @@ jobs:
     
     - name: Build libvcx Java wrapper with Gradle
       run: ./gradlew clean build
-      working-directory: ./vcx/wrapper/java
+      working-directory: ./vcx/wrappers/java
       
     - name: Compress and Upload libindy
       env: 
