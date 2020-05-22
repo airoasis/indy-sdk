@@ -13,9 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-      with:
-        path: 'libindy'
     - name: Setup Build Env
       run: sudo apt-get install -y build-essential pkg-config cmake libssl-dev libsqlite3-dev libzmq3-dev libncursesw5-dev libsodium-dev
     - name: Build
       run: cargo build --verbose
+      working-directory: ./libindy
