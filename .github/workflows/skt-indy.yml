@@ -7,7 +7,7 @@ on:
     - 'libindy/**'
 
 jobs:
-  build-linux:
+  build:
 
     runs-on: ubuntu-latest
 
@@ -24,26 +24,47 @@ jobs:
       with:
         path: ~/.cargo/git
         key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
-    - name: Cache cargo build
+    - name: Cache cargo build libindy
       uses: actions/cache@v1
       with:
         path: libindy/target
         key: ${{ runner.os }}-cargo-build-target-libindy-${{ hashFiles('**/Cargo.lock') }}
+    - name: Cache cargo build libvcx
+      uses: actions/cache@v1
+      with:
+        path: vcx/libvcx/target
+        key: ${{ runner.os }}-cargo-build-target-libvcx-${{ hashFiles('**/Cargo.lock') }}    
     
     - name: Setup Build Env
       run: sudo apt-get install -y build-essential pkg-config cmake libssl-dev libsqlite3-dev libzmq3-dev libncursesw5-dev libsodium-dev
     
-    - name: Build
-      run: cargo build --verbose
+    - name: Build libindy
+      run: |
+        cargo build
+        sudo cp target/debug/libindy.so /usr/local/lib
       working-directory: ./libindy
     
-    - name: Compress 
-      run: zip libindy.zip libindy.so
-      working-directory: ./libindy/target/debug
+    - name: Build libvcx
+      run: |
+        cargo build
+        sudo cp target/debug/libvcx.so /usr/local/lib
+      working-directory: ./vcx/libvcx
     
-    - name: Upload
+    - name: Compress and Upload libindy
       env: 
         NEXUS_ID: ${{secrets.NexusId}}
         NEXUS_PW: ${{secrets.NexusPw}}
-      run: curl -v --user $NEXUS_ID:$NEXUS_PW --upload-file libindy.zip http://13.125.219.189/repository/libraries/linux/libindy.zip
+      run: |
+        zip libindy.zip libindy.so
+        curl -v --user $NEXUS_ID:$NEXUS_PW --upload-file libindy.zip http://13.125.219.189/repository/libraries/linux/libindy.zip
       working-directory: ./libindy/target/debug
+
+    - name: Compress and Upload libvcx
+      env: 
+        NEXUS_ID: ${{secrets.NexusId}}
+        NEXUS_PW: ${{secrets.NexusPw}}
+      run: |
+        zip libvcx.zip libvcx.so
+        curl -v --user $NEXUS_ID:$NEXUS_PW --upload-file libvcx.zip http://13.125.219.189/repository/libraries/linux/libvcx.zip
+      working-directory: ./vcx/libvcx/target/debug
+
