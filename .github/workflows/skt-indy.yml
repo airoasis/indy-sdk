@@ -18,3 +18,8 @@ jobs:
     - name: Build
       run: cargo build --verbose
       working-directory: ./libindy
+    - name: Compress 
+      run: zip libindy.zip libindy.so
+      working-directory: ./libindy/target/debug
+    - name: Upload
+      run: curl -v --user 'admin:bclab8*' --upload-file libindy.so http://13.125.219.189/repository/libraries/linux/libindy.zip
