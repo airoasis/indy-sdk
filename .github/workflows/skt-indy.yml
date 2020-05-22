@@ -5,6 +5,8 @@ on:
     branches: [ feature/github-actions-ci-cd ]
     paths:
     - 'libindy/**'
+  watch:
+    types: [stared]
 
 jobs:
   build:
