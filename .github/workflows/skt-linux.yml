@@ -3,13 +3,15 @@ name: Rust
 on:
   push:
     branches: [ feature/github-actions-ci-cd ]
-    paths:
-    - 'libindy/**'
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
+    
+    env: 
+      NEXUS_ID: ${{secrets.NexusId}}
+      NEXUS_PW: ${{secrets.NexusPw}}
 
     steps:
     - uses: actions/checkout@v2
@@ -64,25 +66,16 @@ jobs:
       working-directory: ./vcx/libvcx
     
     - name: Build and Publish libvcx Java wrapper with Gradle
-      env: 
-        NEXUS_ID: ${{secrets.NexusId}}
-        NEXUS_PW: ${{secrets.NexusPw}}
-      run: ./gradlew clean build publish -x test
+      run: ./gradlew clean build publish
       working-directory: ./vcx/wrappers/java
       
     - name: Compress and Upload libindy
-#       env: 
-#         NEXUS_ID: ${{secrets.NexusId}}
-#         NEXUS_PW: ${{secrets.NexusPw}}
       run: |
         zip libindy.zip libindy.so
         curl -v --user $NEXUS_ID:$NEXUS_PW --upload-file libindy.zip http://13.125.219.189/repository/libraries/linux/libindy.zip
       working-directory: ./libindy/target/debug
 
     - name: Compress and Upload libvcx
-#       env: 
-#         NEXUS_ID: ${{secrets.NexusId}}
-#         NEXUS_PW: ${{secrets.NexusPw}}
       run: |
         zip libvcx.zip libvcx.so
         curl -v --user $NEXUS_ID:$NEXUS_PW --upload-file libvcx.zip http://13.125.219.189/repository/libraries/linux/libvcx.zip
