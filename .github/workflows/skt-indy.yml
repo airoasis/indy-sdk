@@ -54,13 +54,13 @@ jobs:
     - name: Build libindy
       run: |
         cargo build
-        sudo cp target/debug/libindy.so /usr/local/lib
+        sudo cp target/debug/libindy.so /usr/lib
       working-directory: ./libindy
     
     - name: Build libvcx
       run: |
         cargo build
-        sudo cp target/debug/libvcx.so /usr/local/lib
+        sudo cp target/debug/libvcx.so /usr/lib
       working-directory: ./vcx/libvcx
     
     - name: Build libvcx Java wrapper with Gradle
