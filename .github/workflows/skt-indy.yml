@@ -63,8 +63,11 @@ jobs:
         sudo cp target/debug/libvcx.so /usr/lib
       working-directory: ./vcx/libvcx
     
-    - name: Build libvcx Java wrapper with Gradle
-      run: ./gradlew clean build
+    - name: Build and Publish libvcx Java wrapper with Gradle
+      env: 
+        NEXUS_ID: ${{secrets.NexusId}}
+        NEXUS_PW: ${{secrets.NexusPw}}
+      run: ./gradlew clean build publish
       working-directory: ./vcx/wrappers/java
       
     - name: Compress and Upload libindy
