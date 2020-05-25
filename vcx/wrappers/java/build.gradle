@@ -1,6 +1,7 @@
 import java.text.SimpleDateFormat
 
 apply plugin: 'java'
+apply plugin: 'maven-publish'
 group = 'com.evernym.sdk'
 
 wrapper {
@@ -63,6 +64,28 @@ tasks.withType(Test) {
         exceptionFormat "full"
         events "skipped", "passed", "failed"
         showStandardStreams true
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.evernym'
+            version = '0.8.0-skt-SNAPSHOT'
+
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            name = "nexus"
+            url = "http://13.125.219.189/repository/maven-snapshots/" 
+            credentials {
+                username System.getenv("NEXUS_ID")
+                password System.getenv("NEXUS_PW")
+            }
+        }
     }
 }
 
