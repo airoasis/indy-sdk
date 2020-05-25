@@ -14,34 +14,34 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Cache cargo registry
-      uses: actions/cache@v1
-      with:
-        path: ~/.cargo/registry
-        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-    - name: Cache cargo index
-      uses: actions/cache@v1
-      with:
-        path: ~/.cargo/git
-        key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
-    - name: Cache cargo build libindy
-      uses: actions/cache@v1
-      with:
-        path: libindy/target
-        key: ${{ runner.os }}-cargo-build-target-libindy-${{ hashFiles('**/Cargo.lock') }}
-    - name: Cache cargo build libvcx
-      uses: actions/cache@v1
-      with:
-        path: vcx/libvcx/target
-        key: ${{ runner.os }}-cargo-build-target-libvcx-${{ hashFiles('**/Cargo.lock') }}    
+#     - name: Cache cargo registry
+#       uses: actions/cache@v1
+#       with:
+#         path: ~/.cargo/registry
+#         key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+#     - name: Cache cargo index
+#       uses: actions/cache@v1
+#       with:
+#         path: ~/.cargo/git
+#         key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+#     - name: Cache cargo build libindy
+#       uses: actions/cache@v1
+#       with:
+#         path: libindy/target
+#         key: ${{ runner.os }}-cargo-build-target-libindy-${{ hashFiles('**/Cargo.lock') }}
+#     - name: Cache cargo build libvcx
+#       uses: actions/cache@v1
+#       with:
+#         path: vcx/libvcx/target
+#         key: ${{ runner.os }}-cargo-build-target-libvcx-${{ hashFiles('**/Cargo.lock') }}    
     
-    - name: Cache Java build
-      uses: actions/cache@v1
-      with:
-        path: ~/.gradle/caches
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
+#     - name: Cache Java build
+#       uses: actions/cache@v1
+#       with:
+#         path: ~/.gradle/caches
+#         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+#         restore-keys: |
+#           ${{ runner.os }}-gradle-
 
     - name: Setup Build Env
       run: sudo apt-get install -y build-essential pkg-config cmake libssl-dev libsqlite3-dev libzmq3-dev libncursesw5-dev libsodium-dev
@@ -51,40 +51,40 @@ jobs:
       with:
         java-version: 1.8
 
-    - name: Build libindy
-      run: |
-        cargo build
-        sudo cp target/debug/libindy.so /usr/lib
-      working-directory: ./libindy
+#     - name: Build libindy
+#       run: |
+#         cargo build
+#         sudo cp target/debug/libindy.so /usr/lib
+#       working-directory: ./libindy
     
-    - name: Build libvcx
-      run: |
-        cargo build
-        sudo cp target/debug/libvcx.so /usr/lib
-      working-directory: ./vcx/libvcx
+#     - name: Build libvcx
+#       run: |
+#         cargo build
+#         sudo cp target/debug/libvcx.so /usr/lib
+#       working-directory: ./vcx/libvcx
     
     - name: Build and Publish libvcx Java wrapper with Gradle
       env: 
         NEXUS_ID: ${{secrets.NexusId}}
         NEXUS_PW: ${{secrets.NexusPw}}
-      run: ./gradlew clean build publish
+      run: ./gradlew clean build publish -x test
       working-directory: ./vcx/wrappers/java
       
-    - name: Compress and Upload libindy
-      env: 
-        NEXUS_ID: ${{secrets.NexusId}}
-        NEXUS_PW: ${{secrets.NexusPw}}
-      run: |
-        zip libindy.zip libindy.so
-        curl -v --user $NEXUS_ID:$NEXUS_PW --upload-file libindy.zip http://13.125.219.189/repository/libraries/linux/libindy.zip
-      working-directory: ./libindy/target/debug
+#     - name: Compress and Upload libindy
+#       env: 
+#         NEXUS_ID: ${{secrets.NexusId}}
+#         NEXUS_PW: ${{secrets.NexusPw}}
+#       run: |
+#         zip libindy.zip libindy.so
+#         curl -v --user $NEXUS_ID:$NEXUS_PW --upload-file libindy.zip http://13.125.219.189/repository/libraries/linux/libindy.zip
+#       working-directory: ./libindy/target/debug
 
-    - name: Compress and Upload libvcx
-      env: 
-        NEXUS_ID: ${{secrets.NexusId}}
-        NEXUS_PW: ${{secrets.NexusPw}}
-      run: |
-        zip libvcx.zip libvcx.so
-        curl -v --user $NEXUS_ID:$NEXUS_PW --upload-file libvcx.zip http://13.125.219.189/repository/libraries/linux/libvcx.zip
-      working-directory: ./vcx/libvcx/target/debug
+#     - name: Compress and Upload libvcx
+#       env: 
+#         NEXUS_ID: ${{secrets.NexusId}}
+#         NEXUS_PW: ${{secrets.NexusPw}}
+#       run: |
+#         zip libvcx.zip libvcx.so
+#         curl -v --user $NEXUS_ID:$NEXUS_PW --upload-file libvcx.zip http://13.125.219.189/repository/libraries/linux/libvcx.zip
+#       working-directory: ./vcx/libvcx/target/debug
 
